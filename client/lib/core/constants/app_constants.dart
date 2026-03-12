@@ -1,0 +1,22 @@
+class AppConstants {
+  // App info
+  static const String appName = 'STJ';
+  static const String appVersion = '1.0.0';
+  
+  // Validation
+  static const int minNameLength = 2;
+  static const int minPasswordLength = 6;
+  
+  // Storage keys
+  static const String tokenKey = 'auth_token';
+  static const String userKey = 'user_data';
+  
+  // Routes
+  static const String splashRoute = '/';
+  static const String loginRoute = '/login';
+  static const String registerRoute = '/register';
+  static const String verifyEmailRoute = '/verify-email';
+  static const String forgotPasswordRoute = '/forgot-password';
+  static const String homeRoute = '/home';
+  static const String profileRoute = '/profile';
+}
