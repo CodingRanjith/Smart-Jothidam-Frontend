@@ -18,17 +18,20 @@ import 'features/auth/domain/usecases/resend_verification.dart';
 import 'features/auth/domain/usecases/forgot_password.dart';
 import 'features/auth/domain/usecases/get_profile.dart';
 import 'features/auth/domain/usecases/update_profile.dart';
+import 'firebase_options.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase
-  await Firebase.initializeApp();
-  
+
+  // Initialize Firebase with explicit options (required on web)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   // Initialize dependencies
   final sharedPreferences = await SharedPreferences.getInstance();
-  
+
   runApp(MyAppWithDependencies(sharedPreferences: sharedPreferences));
 }
 
