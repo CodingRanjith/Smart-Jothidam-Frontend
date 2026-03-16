@@ -20,6 +20,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await _apiService.post(
         ApiConstants.registerEndpoint,
         data: userData,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
       return UserModel.fromJson(response.data);
     } catch (e) {
@@ -32,6 +35,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await _apiService.post(
         ApiConstants.verifyEndpoint,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
       return UserModel.fromJson(response.data);
     } catch (e) {
@@ -44,6 +50,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await _apiService.get(
         ApiConstants.profileEndpoint,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
       return UserModel.fromJson(response.data);
     } catch (e) {
@@ -57,6 +66,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await _apiService.put(
         ApiConstants.profileEndpoint,
         data: userData,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
       return UserModel.fromJson(response.data);
     } catch (e) {

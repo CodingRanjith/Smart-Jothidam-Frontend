@@ -12,18 +12,29 @@ class VerifyBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final surface = theme.colorScheme.primaryContainer;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
-      color: Colors.orange[100],
+      decoration: BoxDecoration(
+        color: surface,
+        border: Border(
+          bottom: BorderSide(color: primary.withOpacity(0.3), width: 1),
+        ),
+      ),
       child: Row(
         children: [
-          const Icon(Icons.warning, color: Colors.orange),
+          Icon(Icons.info_outline, color: primary, size: 22),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
               'Please verify your email address',
-              style: TextStyle(fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ),
           TextButton(

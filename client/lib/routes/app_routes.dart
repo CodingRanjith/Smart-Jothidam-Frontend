@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_constants.dart';
 import '../features/auth/presentation/pages/splash_page.dart';
+import '../features/auth/presentation/pages/welcome_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/register_page.dart';
 import '../features/auth/presentation/pages/verify_email_page.dart';
@@ -12,6 +13,9 @@ class AppRoutes {
     switch (settings.name) {
       case AppConstants.splashRoute:
         return MaterialPageRoute(builder: (_) => const SplashPage());
+      
+      case AppConstants.welcomeRoute:
+        return MaterialPageRoute(builder: (_) => const WelcomePage());
       
       case AppConstants.loginRoute:
         return MaterialPageRoute(builder: (_) => const LoginPage());

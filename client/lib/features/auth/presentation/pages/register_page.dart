@@ -61,123 +61,218 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-      ),
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthVerificationEmailSent) {
-            Navigator.pushReplacementNamed(context, AppConstants.verifyEmailRoute);
-          } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          }
-        },
-        builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  AuthTextField(
-                    controller: _nameController,
-                    label: 'Name *',
-                    validator: Validators.validateName,
-                  ),
-                  const SizedBox(height: 16),
-                  AuthTextField(
-                    controller: _emailController,
-                    label: 'Email *',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: Validators.validateEmail,
-                  ),
-                  const SizedBox(height: 16),
-                  AuthTextField(
-                    controller: _passwordController,
-                    label: 'Password *',
-                    obscureText: true,
-                    validator: Validators.validatePassword,
-                  ),
-                  const SizedBox(height: 16),
-                  AuthTextField(
-                    controller: _confirmPasswordController,
-                    label: 'Confirm Password *',
-                    obscureText: true,
-                    validator: (value) => Validators.validateConfirmPassword(value, _passwordController.text),
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const Text('Optional Information'),
-                  const SizedBox(height: 16),
-                  AuthTextField(
-                    controller: _phoneController,
-                    label: 'Phone',
-                    keyboardType: TextInputType.phone,
-                    validator: Validators.validatePhone,
-                  ),
-                  const SizedBox(height: 16),
-                  ListTile(
-                    title: Text(_selectedDob == null ? 'Date of Birth' : 'DOB: ${_selectedDob!.toString().split(' ')[0]}'),
-                    trailing: const Icon(Icons.calendar_today),
-                    onTap: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now().subtract(const Duration(days: 365 * 20)),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                      );
-                      if (date != null) {
-                        setState(() => _selectedDob = date);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  ListTile(
-                    title: Text(_selectedBirthTime == null ? 'Birth Time' : 'Time: ${_selectedBirthTime!.format(context)}'),
-                    trailing: const Icon(Icons.access_time),
-                    onTap: () async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                      );
-                      if (time != null) {
-                        setState(() => _selectedBirthTime = time);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  AuthTextField(
-                    controller: _birthPlaceController,
-                    label: 'Birth Place',
-                  ),
-                  const SizedBox(height: 24),
-                  AuthButton(
-                    text: 'Register',
-                    onPressed: _onRegisterPressed,
-                    isLoading: state is AuthLoading,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Already have an account? '),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
-                        },
-                        child: const Text('Login'),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthVerificationEmailSent) {
+              Navigator.pushReplacementNamed(context, AppConstants.verifyEmailRoute);
+            } else if (state is AuthError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Icon(
+                        Icons.person_add_rounded,
+                        size: 72,
+                        color: theme.colorScheme.primary,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Create Account',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Sign up to get personalised astrology insights and guidance.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 28),
+                    AuthTextField(
+                      controller: _nameController,
+                      label: 'Name *',
+                      validator: Validators.validateName,
+                    ),
+                    const SizedBox(height: 16),
+                    AuthTextField(
+                      controller: _emailController,
+                      label: 'Email *',
+                      keyboardType: TextInputType.emailAddress,
+                      validator: Validators.validateEmail,
+                    ),
+                    const SizedBox(height: 16),
+                    AuthTextField(
+                      controller: _passwordController,
+                      label: 'Password *',
+                      obscureText: true,
+                      validator: Validators.validatePassword,
+                    ),
+                    const SizedBox(height: 16),
+                    AuthTextField(
+                      controller: _confirmPasswordController,
+                      label: 'Confirm Password *',
+                      obscureText: true,
+                      validator: (value) => Validators.validateConfirmPassword(value, _passwordController.text),
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(height: 1),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Optional Information',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    AuthTextField(
+                      controller: _phoneController,
+                      label: 'Phone',
+                      keyboardType: TextInputType.phone,
+                      validator: Validators.validatePhone,
+                    ),
+                    const SizedBox(height: 16),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        _selectedDob == null ? 'Date of Birth' : 'DOB: ${_selectedDob!.toString().split(' ')[0]}',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      trailing: Icon(Icons.calendar_today, size: 20, color: theme.colorScheme.primary),
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now().subtract(const Duration(days: 365 * 20)),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (date != null) {
+                          setState(() => _selectedDob = date);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        _selectedBirthTime == null ? 'Birth Time' : 'Time: ${_selectedBirthTime!.format(context)}',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      trailing: Icon(Icons.access_time, size: 20, color: theme.colorScheme.primary),
+                      onTap: () async {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (time != null) {
+                          setState(() => _selectedBirthTime = time);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    AuthTextField(
+                      controller: _birthPlaceController,
+                      label: 'Birth Place',
+                    ),
+                    const SizedBox(height: 28),
+                    AuthButton(
+                      text: 'Sign Up',
+                      onPressed: _onRegisterPressed,
+                      isLoading: state is AuthLoading,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'or',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.apple, size: 22),
+                            label: const Text('Apple'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              foregroundColor: theme.colorScheme.onSurface,
+                              side: BorderSide(color: theme.colorScheme.outline),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.g_mobiledata, size: 22),
+                            label: const Text('Google'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              foregroundColor: theme.colorScheme.onSurface,
+                              side: BorderSide(color: theme.colorScheme.outline),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 28),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Already have an account? ',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.8),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+                          },
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text('Log in'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

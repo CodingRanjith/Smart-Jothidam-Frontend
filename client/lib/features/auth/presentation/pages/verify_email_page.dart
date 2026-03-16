@@ -38,7 +38,7 @@ class VerifyEmailPage extends StatelessWidget {
                 Icon(
                   Icons.mark_email_unread,
                   size: 100,
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(height: 20),
                 Text(

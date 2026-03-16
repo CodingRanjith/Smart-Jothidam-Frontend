@@ -64,7 +64,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   Icon(
                     Icons.lock_reset,
                     size: 80,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(height: 20),
                   Text(
