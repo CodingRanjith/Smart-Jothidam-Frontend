@@ -1,6 +1,6 @@
 class ApiConstants {
   // Base URL
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://smart-jothidam-backend.onrender.com';
   
   // Auth endpoints
   static const String registerEndpoint = '/auth/register';
