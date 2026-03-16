@@ -50,9 +50,19 @@ class _LoginPageState extends State<LoginPage> {
           child: BlocConsumer<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is AuthAuthenticated) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Login successful')),
+                );
                 Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
               } else if (state is AuthEmailNotVerified) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please verify your email to continue')),
+                );
                 Navigator.pushReplacementNamed(context, AppConstants.verifyEmailRoute);
+              } else if (state is AuthSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
               } else if (state is AuthError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),

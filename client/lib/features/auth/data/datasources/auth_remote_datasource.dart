@@ -26,7 +26,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return UserModel.fromJson(response.data);
     } catch (e) {
-      rethrow;
+      throw Exception('Registration failed. Please try again.');
     }
   }
 
@@ -41,7 +41,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return UserModel.fromJson(response.data);
     } catch (e) {
-      rethrow;
+      throw Exception('Login failed. Please check your details and try again.');
     }
   }
 
@@ -56,7 +56,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return UserModel.fromJson(response.data);
     } catch (e) {
-      rethrow;
+      throw Exception('Unable to load your profile. Please try again.');
     }
   }
 
@@ -72,7 +72,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return UserModel.fromJson(response.data);
     } catch (e) {
-      rethrow;
+      throw Exception('Updating profile failed. Please try again.');
     }
   }
 }
