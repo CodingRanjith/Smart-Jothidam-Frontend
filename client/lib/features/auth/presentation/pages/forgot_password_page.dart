@@ -73,15 +73,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'Enter your email address and we will send you a link to reset your password.',
+                    'Enter your mobile number and we will send you a reset token.',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
                   AuthTextField(
                     controller: _emailController,
-                    label: 'Email',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: Validators.validateEmail,
+                    label: 'Mobile Number * (with country code)',
+                    keyboardType: TextInputType.phone,
+                    validator: Validators.validateRequiredPhone,
                   ),
                   const SizedBox(height: 24),
                   AuthButton(

@@ -4,7 +4,10 @@ class ApiConstants {
   
   // Auth endpoints
   static const String registerEndpoint = '/auth/register';
+  static const String loginEndpoint = '/auth/login';
   static const String verifyEndpoint = '/auth/verify';
+  static const String forgotPasswordEndpoint = '/auth/forgot-password';
+  static const String resetPasswordEndpoint = '/auth/reset-password';
   static const String profileEndpoint = '/profile';
   
   // Request timeout

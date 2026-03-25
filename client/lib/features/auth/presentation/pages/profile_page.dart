@@ -114,7 +114,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      user.email,
+                      user.phone ?? user.email ?? 'Mobile verified user',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 30),

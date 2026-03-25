@@ -7,22 +7,20 @@ class RegisterUser {
   RegisterUser(this._repository);
 
   Future<UserEntity> call({
-    required String email,
+    required String phone,
     required String password,
     required String name,
     DateTime? dob,
     String? birthTime,
     String? birthPlace,
-    String? phone,
   }) async {
     return await _repository.registerUser(
-      email: email,
+      phone: phone,
       password: password,
       name: name,
       dob: dob,
       birthTime: birthTime,
       birthPlace: birthPlace,
-      phone: phone,
     );
   }
 }

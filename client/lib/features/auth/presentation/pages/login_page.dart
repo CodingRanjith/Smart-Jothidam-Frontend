@@ -17,12 +17,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
             AuthLoginRequested(
-              email: _emailController.text.trim(),
+              phone: _phoneController.text.trim(),
               password: _passwordController.text,
             ),
           );
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                 Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
               } else if (state is AuthEmailNotVerified) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please verify your email to continue')),
+                  const SnackBar(content: Text('Please verify your mobile number to continue')),
                 );
                 Navigator.pushReplacementNamed(context, AppConstants.verifyEmailRoute);
               } else if (state is AuthSuccess) {
@@ -125,10 +125,10 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                      SizedBox(height: size.height * 0.05),
                     AuthTextField(
-                      controller: _emailController,
-                      label: 'Email',
-                      keyboardType: TextInputType.emailAddress,
-                      validator: Validators.validateEmail,
+                      controller: _phoneController,
+                      label: 'Mobile Number * (with country code)',
+                      keyboardType: TextInputType.phone,
+                      validator: Validators.validateRequiredPhone,
                     ),
                      SizedBox(height: size.height * 0.02),
                     AuthTextField(

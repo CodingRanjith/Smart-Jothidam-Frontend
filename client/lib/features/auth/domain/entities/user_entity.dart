@@ -1,40 +1,40 @@
 import 'package:equatable/equatable.dart';
 
 class UserEntity extends Equatable {
-  final String firebaseUid;
-  final String email;
+  final String userId;
+  final String? email;
   final String name;
   final DateTime? dob;
   final String? birthTime;
   final String? birthPlace;
   final String? phone;
-  final bool emailVerified;
+  final bool mobileVerified;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   const UserEntity({
-    required this.firebaseUid,
-    required this.email,
+    required this.userId,
+    this.email,
     required this.name,
     this.dob,
     this.birthTime,
     this.birthPlace,
     this.phone,
-    this.emailVerified = false,
+    this.mobileVerified = false,
     this.createdAt,
     this.updatedAt,
   });
 
   @override
   List<Object?> get props => [
-        firebaseUid,
+        userId,
         email,
         name,
         dob,
         birthTime,
         birthPlace,
         phone,
-        emailVerified,
+        mobileVerified,
         createdAt,
         updatedAt,
       ];

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'core/network/dio_client.dart';
 import 'core/network/api_service.dart';
-import 'core/services/firebase_auth_service.dart';
-import 'features/auth/data/datasources/auth_firebase_datasource.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/usecases/register_user.dart';
@@ -18,16 +14,11 @@ import 'features/auth/domain/usecases/resend_verification.dart';
 import 'features/auth/domain/usecases/forgot_password.dart';
 import 'features/auth/domain/usecases/get_profile.dart';
 import 'features/auth/domain/usecases/update_profile.dart';
-import 'firebase_options.dart';
+import 'features/auth/domain/usecases/logout_user.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Firebase with explicit options (required on web)
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
   // Initialize dependencies
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -48,16 +39,14 @@ class MyAppWithDependencies extends StatelessWidget {
     // Initialize services
     final dioClient = DioClient();
     final apiService = ApiService(dioClient);
-    final firebaseAuthService = FirebaseAuthService(FirebaseAuth.instance);
 
     // Initialize data sources
-    final authFirebaseDataSource = AuthFirebaseDataSourceImpl(firebaseAuthService);
     final authRemoteDataSource = AuthRemoteDataSourceImpl(apiService);
 
     // Initialize repository
     final authRepository = AuthRepositoryImpl(
-      authFirebaseDataSource,
-      authRemoteDataSource,
+      prefs: sharedPreferences,
+      remoteDataSource: authRemoteDataSource,
     );
 
     // Initialize use cases
@@ -68,6 +57,7 @@ class MyAppWithDependencies extends StatelessWidget {
     final forgotPassword = ForgotPassword(authRepository);
     final getProfile = GetProfile(authRepository);
     final updateProfile = UpdateProfile(authRepository);
+    final logoutUser = LogoutUser(authRepository);
 
     return BlocProvider(
       create: (context) => AuthBloc(
@@ -76,6 +66,7 @@ class MyAppWithDependencies extends StatelessWidget {
         verifyEmail: verifyEmail,
         resendVerification: resendVerification,
         forgotPassword: forgotPassword,
+        logoutUser: logoutUser,
         getProfile: getProfile,
         updateProfile: updateProfile,
       ),

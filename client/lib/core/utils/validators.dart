@@ -57,4 +57,12 @@ class Validators {
     }
     return null;
   }
+
+  // Phone validation (required)
+  static String? validateRequiredPhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone is required';
+    }
+    return validatePhone(value);
+  }
 }

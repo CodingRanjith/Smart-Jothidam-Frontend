@@ -1,107 +1,78 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/auth_firebase_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../../../../core/constants/app_constants.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthFirebaseDataSource _firebaseDataSource;
   final AuthRemoteDataSource _remoteDataSource;
+  final SharedPreferences _prefs;
 
-  AuthRepositoryImpl(this._firebaseDataSource, this._remoteDataSource);
+  AuthRepositoryImpl({
+    required SharedPreferences prefs,
+    required AuthRemoteDataSource remoteDataSource,
+  })  : _prefs = prefs,
+        _remoteDataSource = remoteDataSource;
+
+  String? _getToken() => _prefs.getString(AppConstants.tokenKey);
+
+  Future<void> _setToken(String token) async {
+    await _prefs.setString(AppConstants.tokenKey, token);
+  }
 
   @override
   Future<UserEntity> registerUser({
-    required String email,
+    required String phone,
     required String password,
     required String name,
     DateTime? dob,
     String? birthTime,
     String? birthPlace,
-    String? phone,
   }) async {
-    try {
-      // Register with Firebase
-      await _firebaseDataSource.registerWithEmailAndPassword(
-        email,
-        password,
-      );
+    final userData = {
+      'name': name,
+      'phone': phone,
+      'password': password,
+      if (dob != null) 'dob': dob.toIso8601String(),
+      if (birthTime != null) 'birthTime': birthTime,
+      if (birthPlace != null) 'birthPlace': birthPlace,
+    };
 
-      // Send email verification
-      await _firebaseDataSource.sendEmailVerification();
-
-      // Get Firebase ID token
-      final token = await _firebaseDataSource.getIdToken();
-
-      // Register with backend
-      final userData = {
-        'name': name,
-        'email': email,
-        if (dob != null) 'dob': dob.toIso8601String(),
-        if (birthTime != null) 'birthTime': birthTime,
-        if (birthPlace != null) 'birthPlace': birthPlace,
-        if (phone != null) 'phone': phone,
-      };
-
-      final user = await _remoteDataSource.registerUser(token!, userData);
-      return user;
-    } catch (e) {
-      rethrow;
-    }
+    return _remoteDataSource.registerUser(userData);
   }
 
   @override
-  Future<UserEntity> loginUser(String email, String password) async {
-    try {
-      // Login with Firebase
-      await _firebaseDataSource.loginWithEmailAndPassword(email, password);
-
-      // Get Firebase ID token
-      final token = await _firebaseDataSource.getIdToken();
-
-      // Verify token with backend and get profile
-      final user = await _remoteDataSource.verifyToken(token!);
-      return user;
-    } catch (e) {
-      rethrow;
-    }
+  Future<UserEntity> loginUser(String phone, String password) async {
+    final result = await _remoteDataSource.loginUser(phone: phone, password: password);
+    await _setToken(result.token);
+    return result.user;
   }
 
   @override
   Future<void> sendEmailVerification() async {
-    try {
-      await _firebaseDataSource.sendEmailVerification();
-    } catch (e) {
-      rethrow;
-    }
+    // Module 1 currently treats mobile verification as already completed.
   }
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {
-    try {
-      await _firebaseDataSource.sendPasswordResetEmail(email);
-    } catch (e) {
-      rethrow;
-    }
+    // Module 1 uses phone-based reset; UI currently passes it via `email`.
+    await _remoteDataSource.forgotPassword(email);
   }
 
   @override
   Future<void> logout() async {
-    try {
-      await _firebaseDataSource.logout();
-    } catch (e) {
-      rethrow;
-    }
+    await _prefs.remove(AppConstants.tokenKey);
+    await _prefs.remove(AppConstants.userKey);
   }
 
   @override
   Future<UserEntity> getProfile() async {
-    try {
-      final token = await _firebaseDataSource.getIdToken();
-      final user = await _remoteDataSource.getProfile(token!);
-      return user;
-    } catch (e) {
-      rethrow;
+    final token = _getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception('Not authenticated');
     }
+    return _remoteDataSource.getProfile(token);
   }
 
   @override
@@ -112,33 +83,32 @@ class AuthRepositoryImpl implements AuthRepository {
     String? birthPlace,
     String? phone,
   }) async {
-    try {
-      final token = await _firebaseDataSource.getIdToken();
-      final userData = {
-        if (name != null) 'name': name,
-        if (dob != null) 'dob': dob.toIso8601String(),
-        if (birthTime != null) 'birthTime': birthTime,
-        if (birthPlace != null) 'birthPlace': birthPlace,
-        if (phone != null) 'phone': phone,
-      };
-      final user = await _remoteDataSource.updateProfile(token!, userData);
-      return user;
-    } catch (e) {
-      rethrow;
+    final token = _getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception('Not authenticated');
     }
+
+    final userData = {
+      if (name != null) 'name': name,
+      if (dob != null) 'dob': dob.toIso8601String(),
+      if (birthTime != null) 'birthTime': birthTime,
+      if (birthPlace != null) 'birthPlace': birthPlace,
+      if (phone != null) 'phone': phone,
+    };
+
+    return _remoteDataSource.updateProfile(token, userData);
   }
 
   @override
   Future<void> reloadUser() async {
-    try {
-      await _firebaseDataSource.reloadUser();
-    } catch (e) {
-      rethrow;
-    }
+    final token = _getToken();
+    if (token == null || token.isEmpty) return;
+    await _remoteDataSource.verifyToken(token);
   }
 
   @override
   bool isEmailVerified() {
-    return _firebaseDataSource.isEmailVerified();
+    // Kept for backward-compat with existing UI/state naming.
+    return false;
   }
 }

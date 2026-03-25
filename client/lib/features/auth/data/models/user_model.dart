@@ -2,14 +2,14 @@ import '../../domain/entities/user_entity.dart';
 
 class UserModel extends UserEntity {
   const UserModel({
-    required super.firebaseUid,
-    required super.email,
+    required super.userId,
+    super.email,
     required super.name,
     super.dob,
     super.birthTime,
     super.birthPlace,
     super.phone,
-    super.emailVerified,
+    super.mobileVerified,
     super.createdAt,
     super.updatedAt,
   });
@@ -17,14 +17,14 @@ class UserModel extends UserEntity {
   // From JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      firebaseUid: json['firebaseUid'] ?? '',
-      email: json['email'] ?? '',
+      userId: json['id']?.toString() ?? '',
+      email: json['email'],
       name: json['name'] ?? '',
       dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
       birthTime: json['birthTime'],
       birthPlace: json['birthPlace'],
       phone: json['phone'],
-      emailVerified: json['emailVerified'] ?? false,
+      mobileVerified: json['mobileVerified'] ?? false,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
@@ -33,14 +33,14 @@ class UserModel extends UserEntity {
   // To JSON
   Map<String, dynamic> toJson() {
     return {
-      'firebaseUid': firebaseUid,
+      'id': userId,
       'email': email,
       'name': name,
       'dob': dob?.toIso8601String(),
       'birthTime': birthTime,
       'birthPlace': birthPlace,
       'phone': phone,
-      'emailVerified': emailVerified,
+      'mobileVerified': mobileVerified,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -48,26 +48,26 @@ class UserModel extends UserEntity {
 
   // Copy with
   UserModel copyWith({
-    String? firebaseUid,
+    String? userId,
     String? email,
     String? name,
     DateTime? dob,
     String? birthTime,
     String? birthPlace,
     String? phone,
-    bool? emailVerified,
+    bool? mobileVerified,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return UserModel(
-      firebaseUid: firebaseUid ?? this.firebaseUid,
+      userId: userId ?? this.userId,
       email: email ?? this.email,
       name: name ?? this.name,
       dob: dob ?? this.dob,
       birthTime: birthTime ?? this.birthTime,
       birthPlace: birthPlace ?? this.birthPlace,
       phone: phone ?? this.phone,
-      emailVerified: emailVerified ?? this.emailVerified,
+      mobileVerified: mobileVerified ?? this.mobileVerified,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

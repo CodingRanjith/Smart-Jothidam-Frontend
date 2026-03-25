@@ -18,7 +18,6 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -30,7 +29,6 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _phoneController.dispose();
@@ -48,12 +46,11 @@ class _RegisterPageState extends State<RegisterPage> {
       context.read<AuthBloc>().add(
             AuthRegisterRequested(
               name: _nameController.text.trim(),
-              email: _emailController.text.trim(),
+              phone: _phoneController.text.trim(),
               password: _passwordController.text,
               dob: _selectedDob,
               birthTime: birthTimeString,
               birthPlace: _birthPlaceController.text.trim().isNotEmpty ? _birthPlaceController.text.trim() : null,
-              phone: _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
             ),
           );
     }
@@ -67,8 +64,11 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            if (state is AuthVerificationEmailSent) {
-              Navigator.pushReplacementNamed(context, AppConstants.verifyEmailRoute);
+            if (state is AuthSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+              Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
@@ -116,10 +116,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 16),
                     AuthTextField(
-                      controller: _emailController,
-                      label: 'Email *',
-                      keyboardType: TextInputType.emailAddress,
-                      validator: Validators.validateEmail,
+                      controller: _phoneController,
+                      label: 'Phone * (with country code)',
+                      keyboardType: TextInputType.phone,
+                      validator: Validators.validateRequiredPhone,
                     ),
                     const SizedBox(height: 16),
                     AuthTextField(
@@ -146,13 +146,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    AuthTextField(
-                      controller: _phoneController,
-                      label: 'Phone',
-                      keyboardType: TextInputType.phone,
-                      validator: Validators.validatePhone,
-                    ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 0),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(

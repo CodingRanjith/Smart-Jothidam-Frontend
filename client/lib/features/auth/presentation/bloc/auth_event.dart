@@ -10,39 +10,37 @@ abstract class AuthEvent extends Equatable {
 class AuthCheckRequested extends AuthEvent {}
 
 class AuthRegisterRequested extends AuthEvent {
-  final String email;
+  final String phone;
   final String password;
   final String name;
   final DateTime? dob;
   final String? birthTime;
   final String? birthPlace;
-  final String? phone;
 
   const AuthRegisterRequested({
-    required this.email,
+    required this.phone,
     required this.password,
     required this.name,
     this.dob,
     this.birthTime,
     this.birthPlace,
-    this.phone,
   });
 
   @override
-  List<Object?> get props => [email, password, name, dob, birthTime, birthPlace, phone];
+  List<Object?> get props => [phone, password, name, dob, birthTime, birthPlace];
 }
 
 class AuthLoginRequested extends AuthEvent {
-  final String email;
+  final String phone;
   final String password;
 
   const AuthLoginRequested({
-    required this.email,
+    required this.phone,
     required this.password,
   });
 
   @override
-  List<Object?> get props => [email, password];
+  List<Object?> get props => [phone, password];
 }
 
 class AuthLogoutRequested extends AuthEvent {}

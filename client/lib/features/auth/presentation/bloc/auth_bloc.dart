@@ -6,6 +6,7 @@ import '../../domain/usecases/resend_verification.dart';
 import '../../domain/usecases/forgot_password.dart';
 import '../../domain/usecases/get_profile.dart';
 import '../../domain/usecases/update_profile.dart';
+import '../../domain/usecases/logout_user.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -17,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ForgotPassword _forgotPassword;
   final GetProfile _getProfile;
   final UpdateProfile _updateProfile;
+  final LogoutUser _logoutUser;
 
   AuthBloc({
     required RegisterUser registerUser,
@@ -26,6 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required ForgotPassword forgotPassword,
     required GetProfile getProfile,
     required UpdateProfile updateProfile,
+    required LogoutUser logoutUser,
   })  : _registerUser = registerUser,
         _loginUser = loginUser,
         _verifyEmail = verifyEmail,
@@ -33,6 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         _forgotPassword = forgotPassword,
         _getProfile = getProfile,
         _updateProfile = updateProfile,
+        _logoutUser = logoutUser,
         super(AuthInitial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthRegisterRequested>(_onAuthRegisterRequested);
@@ -53,7 +57,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       // Check auth state and get profile
       final user = await _getProfile();
-      if (user.emailVerified) {
+      if (user.mobileVerified) {
         emit(AuthAuthenticated(user: user));
       } else {
         emit(AuthEmailNotVerified(user: user));
@@ -70,15 +74,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       await _registerUser(
-        email: event.email,
+        phone: event.phone,
         password: event.password,
         name: event.name,
         dob: event.dob,
         birthTime: event.birthTime,
         birthPlace: event.birthPlace,
-        phone: event.phone,
       );
-      emit(AuthVerificationEmailSent());
+      emit(AuthSuccess(message: 'Registration successful. Please login.'));
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -90,8 +93,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final user = await _loginUser(event.email, event.password);
-      if (user.emailVerified) {
+      final user = await _loginUser(event.phone, event.password);
+      if (user.mobileVerified) {
         emit(AuthAuthenticated(user: user));
       } else {
         emit(AuthEmailNotVerified(user: user));
@@ -107,7 +110,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      // Call logout from repository
+      await _logoutUser();
       emit(AuthUnauthenticated());
     } catch (e) {
       emit(AuthError(message: e.toString()));
@@ -121,7 +124,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       await _verifyEmail();
       final user = await _getProfile();
-      if (user.emailVerified) {
+      if (user.mobileVerified) {
         emit(AuthAuthenticated(user: user));
       } else {
         emit(AuthEmailNotVerified(user: user));

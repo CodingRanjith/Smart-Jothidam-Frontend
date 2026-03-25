@@ -2,16 +2,15 @@ import '../entities/user_entity.dart';
 
 abstract class AuthRepository {
   Future<UserEntity> registerUser({
-    required String email,
+    required String phone,
     required String password,
     required String name,
     DateTime? dob,
     String? birthTime,
     String? birthPlace,
-    String? phone,
   });
 
-  Future<UserEntity> loginUser(String email, String password);
+  Future<UserEntity> loginUser(String phone, String password);
 
   Future<void> sendEmailVerification();
 
