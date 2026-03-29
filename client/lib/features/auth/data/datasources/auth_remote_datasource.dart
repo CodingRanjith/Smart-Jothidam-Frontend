@@ -1,9 +1,11 @@
+import 'package:dio/dio.dart';
+
 import '../../../../core/network/api_service.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> registerUser(Map<String, dynamic> userData);
+  Future<RegisterResult> registerUser(Map<String, dynamic> userData);
   Future<LoginResult> loginUser({
     required String phone,
     required String password,
@@ -27,13 +29,45 @@ class LoginResult {
   });
 }
 
+class RegisterResult {
+  final UserModel user;
+  final String? token;
+
+  const RegisterResult({
+    required this.user,
+    this.token,
+  });
+}
+
+String _messageFromDio(Object e) {
+  if (e is DioException) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final m = data['message'];
+      if (m is String && m.isNotEmpty) return m;
+      final errs = data['errors'];
+      if (errs is List && errs.isNotEmpty) return errs.first.toString();
+      if (errs is String && errs.isNotEmpty) return errs;
+    }
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.sendTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return 'Request timed out. If the server was sleeping (e.g. Render free tier), try again.';
+    }
+    if (e.type == DioExceptionType.connectionError) {
+      return 'Could not reach the server. Check your network and API base URL.';
+    }
+  }
+  return e.toString();
+}
+
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiService _apiService;
 
   AuthRemoteDataSourceImpl(this._apiService);
 
   @override
-  Future<UserModel> registerUser(Map<String, dynamic> userData) async {
+  Future<RegisterResult> registerUser(Map<String, dynamic> userData) async {
     try {
       final response = await _apiService.post(
         ApiConstants.registerEndpoint,
@@ -45,9 +79,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception(body['message'] ?? 'Registration failed');
       }
 
-      return UserModel.fromJson(body['data'] as Map<String, dynamic>);
+      final data = body['data'] as Map<String, dynamic>;
+      final userJson = data['user'] as Map<String, dynamic>;
+      final token = data['token'] as String?;
+
+      return RegisterResult(
+        user: UserModel.fromJson(userJson),
+        token: token,
+      );
     } catch (e) {
-      throw Exception('Registration failed. Please try again.');
+      throw Exception(_messageFromDio(e));
     }
   }
 
@@ -75,8 +116,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         token: data['token'] as String,
         user: UserModel.fromJson(data['user'] as Map<String, dynamic>),
       );
-    } catch (_) {
-      throw Exception('Login failed. Please check your details and try again.');
+    } catch (e) {
+      throw Exception(_messageFromDio(e));
     }
   }
 
@@ -94,9 +135,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (body['success'] != true) {
         throw Exception(body['message'] ?? 'Reset request failed');
       }
-    } catch (_) {
-      // UI relies on a generic "sent" state, so keep this tolerant.
-      throw Exception('Unable to request password reset. Please try again.');
+    } catch (e) {
+      throw Exception(_messageFromDio(e));
     }
   }
 
@@ -116,8 +156,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       return UserModel.fromJson(body['data'] as Map<String, dynamic>);
-    } catch (_) {
-      throw Exception('Token verification failed. Please login again.');
+    } catch (e) {
+      throw Exception(_messageFromDio(e));
     }
   }
 
@@ -138,7 +178,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return UserModel.fromJson(body['data'] as Map<String, dynamic>);
     } catch (e) {
-      throw Exception('Unable to load your profile. Please try again.');
+      throw Exception(_messageFromDio(e));
     }
   }
 
@@ -160,7 +200,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return UserModel.fromJson(body['data'] as Map<String, dynamic>);
     } catch (e) {
-      throw Exception('Updating profile failed. Please try again.');
+      throw Exception(_messageFromDio(e));
     }
   }
 }

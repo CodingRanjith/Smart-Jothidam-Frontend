@@ -7,6 +7,7 @@ import '../features/auth/presentation/pages/register_page.dart';
 import '../features/auth/presentation/pages/verify_email_page.dart';
 import '../features/auth/presentation/pages/forgot_password_page.dart';
 import '../features/auth/presentation/pages/profile_page.dart';
+import '../features/home/presentation/pages/home_page.dart';
 
 class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -33,12 +34,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ProfilePage());
       
       case AppConstants.homeRoute:
-        // TODO: Create home page
-        return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Home Page - Coming Soon')),
-          ),
-        );
+        return MaterialPageRoute(builder: (_) => const HomePage());
       
       default:
         return MaterialPageRoute(

@@ -14,19 +14,25 @@ class UserModel extends UserEntity {
     super.updatedAt,
   });
 
+  static DateTime? _parseDate(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    return DateTime.tryParse(v.toString());
+  }
+
   // From JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       userId: json['id']?.toString() ?? '',
       email: json['email'],
       name: json['name'] ?? '',
-      dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
-      birthTime: json['birthTime'],
-      birthPlace: json['birthPlace'],
-      phone: json['phone'],
-      mobileVerified: json['mobileVerified'] ?? false,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      dob: _parseDate(json['dob']),
+      birthTime: json['birthTime']?.toString(),
+      birthPlace: json['birthPlace']?.toString(),
+      phone: json['phone']?.toString(),
+      mobileVerified: json['mobileVerified'] == true,
+      createdAt: _parseDate(json['createdAt']),
+      updatedAt: _parseDate(json['updatedAt']),
     );
   }
 

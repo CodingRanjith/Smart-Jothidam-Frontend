@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_logo_icon.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -17,15 +18,9 @@ class WelcomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(
-                'assets/logo.png',
-                height: 48,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Icon(
-                  Icons.stars,
-                  size: 40,
-                  color: theme.colorScheme.primary,
-                ),
+              AppLogoIcon(
+                size: 48,
+                color: theme.colorScheme.primary,
               ),
               SizedBox(height: size.height * 0.06),
               Center(

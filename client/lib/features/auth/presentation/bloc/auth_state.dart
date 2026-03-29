@@ -23,15 +23,6 @@ class AuthAuthenticated extends AuthState {
 
 class AuthUnauthenticated extends AuthState {}
 
-class AuthEmailNotVerified extends AuthState {
-  final UserEntity user;
-
-  const AuthEmailNotVerified({required this.user});
-
-  @override
-  List<Object?> get props => [user];
-}
-
 class AuthError extends AuthState {
   final String message;
 
@@ -49,7 +40,5 @@ class AuthSuccess extends AuthState {
   @override
   List<Object?> get props => [message];
 }
-
-class AuthVerificationEmailSent extends AuthState {}
 
 class AuthPasswordResetEmailSent extends AuthState {}

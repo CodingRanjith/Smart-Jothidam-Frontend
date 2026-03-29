@@ -64,11 +64,15 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            if (state is AuthSuccess) {
+            if (state is AuthAuthenticated) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Account created. You are signed in.')),
+              );
+              Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
+            } else if (state is AuthSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
               );
-              Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),

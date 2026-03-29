@@ -46,14 +46,20 @@ class Validators {
     return null;
   }
 
+  /// Digits after optional +; spaces/dashes stripped before check.
+  static String normalizePhoneInput(String value) {
+    return value.trim().replaceAll(RegExp(r'[\s\-\(\)]'), '');
+  }
+
   // Phone validation (optional)
   static String? validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return null; // Optional field
     }
+    final normalized = normalizePhoneInput(value);
     final phoneRegex = RegExp(r'^\+?[1-9]\d{1,14}$');
-    if (!phoneRegex.hasMatch(value)) {
-      return 'Enter a valid phone number';
+    if (!phoneRegex.hasMatch(normalized)) {
+      return 'Enter a valid phone number (include country code, e.g. +91...)';
     }
     return null;
   }

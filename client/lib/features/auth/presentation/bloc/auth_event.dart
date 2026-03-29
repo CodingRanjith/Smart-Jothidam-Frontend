@@ -45,10 +45,6 @@ class AuthLoginRequested extends AuthEvent {
 
 class AuthLogoutRequested extends AuthEvent {}
 
-class AuthVerifyEmailRequested extends AuthEvent {}
-
-class AuthResendVerificationRequested extends AuthEvent {}
-
 class AuthForgotPasswordRequested extends AuthEvent {
   final String email;
 

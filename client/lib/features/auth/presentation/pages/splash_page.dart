@@ -6,6 +6,7 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_logo_icon.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -59,11 +60,6 @@ class _SplashPageState extends State<SplashPage>
         listener: (context, state) {
           if (state is AuthAuthenticated) {
             Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
-          } else if (state is AuthEmailNotVerified) {
-            Navigator.pushReplacementNamed(
-              context,
-              AppConstants.verifyEmailRoute,
-            );
           } else if (state is AuthUnauthenticated) {
             Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
           } else if (state is AuthError) {
@@ -84,15 +80,9 @@ class _SplashPageState extends State<SplashPage>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          'assets/logo.png',
-                          height: 100,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => Icon(
-                            Icons.auto_awesome,
-                            size: 100,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                        AppLogoIcon(
+                          size: 100,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(height: 20),
                         Text(

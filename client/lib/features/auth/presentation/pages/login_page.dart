@@ -7,6 +7,7 @@ import '../widgets/auth_textfield.dart';
 import '../widgets/auth_button.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/app_logo_icon.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -54,11 +55,6 @@ class _LoginPageState extends State<LoginPage> {
                   const SnackBar(content: Text('Login successful')),
                 );
                 Navigator.pushReplacementNamed(context, AppConstants.homeRoute);
-              } else if (state is AuthEmailNotVerified) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please verify your mobile number to continue')),
-                );
-                Navigator.pushReplacementNamed(context, AppConstants.verifyEmailRoute);
               } else if (state is AuthSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -79,11 +75,9 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Image.asset(
-                          'assets/logo.png',
-                          height: 52,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        child: AppLogoIcon(
+                          size: 52,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       const SizedBox(height: 32),

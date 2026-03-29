@@ -5,7 +5,7 @@ class AppConstants {
   
   // Validation
   static const int minNameLength = 2;
-  static const int minPasswordLength = 6;
+  static const int minPasswordLength = 8;
   
   // Storage keys
   static const String tokenKey = 'auth_token';
