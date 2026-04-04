@@ -10,6 +10,7 @@ class UserModel extends UserEntity {
     super.birthPlace,
     super.phone,
     super.mobileVerified,
+    super.isPremium,
     super.createdAt,
     super.updatedAt,
   });
@@ -31,6 +32,7 @@ class UserModel extends UserEntity {
       birthPlace: json['birthPlace']?.toString(),
       phone: json['phone']?.toString(),
       mobileVerified: json['mobileVerified'] == true,
+      isPremium: json['isPremium'] == true,
       createdAt: _parseDate(json['createdAt']),
       updatedAt: _parseDate(json['updatedAt']),
     );
@@ -47,6 +49,7 @@ class UserModel extends UserEntity {
       'birthPlace': birthPlace,
       'phone': phone,
       'mobileVerified': mobileVerified,
+      'isPremium': isPremium,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -62,6 +65,7 @@ class UserModel extends UserEntity {
     String? birthPlace,
     String? phone,
     bool? mobileVerified,
+    bool? isPremium,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -74,6 +78,7 @@ class UserModel extends UserEntity {
       birthPlace: birthPlace ?? this.birthPlace,
       phone: phone ?? this.phone,
       mobileVerified: mobileVerified ?? this.mobileVerified,
+      isPremium: isPremium ?? this.isPremium,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

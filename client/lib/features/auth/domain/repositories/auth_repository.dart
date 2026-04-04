@@ -27,4 +27,7 @@ abstract class AuthRepository {
   });
 
   Future<void> reloadUser();
+
+  /// Current JWT from secure storage, if any.
+  String? getToken();
 }

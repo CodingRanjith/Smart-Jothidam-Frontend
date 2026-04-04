@@ -9,6 +9,7 @@ class UserEntity extends Equatable {
   final String? birthPlace;
   final String? phone;
   final bool mobileVerified;
+  final bool isPremium;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -21,6 +22,7 @@ class UserEntity extends Equatable {
     this.birthPlace,
     this.phone,
     this.mobileVerified = false,
+    this.isPremium = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -35,6 +37,7 @@ class UserEntity extends Equatable {
         birthPlace,
         phone,
         mobileVerified,
+        isPremium,
         createdAt,
         updatedAt,
       ];

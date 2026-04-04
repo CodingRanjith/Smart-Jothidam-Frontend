@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/profile_completion.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,8 +16,8 @@ class HomePage extends StatelessWidget {
 
     // TODO: Replace with real modules from backend/config
     final modules = [
-      'Single Josiyam',
-      'Match Making',
+      'My Josiyam',
+      'Couple Josiyam',
       'Career Guidance',
       'Health Insights',
       'Wealth & Finance',
@@ -64,7 +69,40 @@ class HomePage extends StatelessWidget {
                   return _ModuleCard(
                     title: module,
                     onTap: () {
-                      // TODO: Navigate to specific module screen when ready
+                      final auth = context.read<AuthBloc>().state;
+                      if (module == 'My Josiyam') {
+                        if (auth is! AuthAuthenticated) {
+                          Navigator.pushNamed(context, AppConstants.loginRoute);
+                          return;
+                        }
+                        if (!isJosiyamProfileComplete(auth.user)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Add date of birth, birth time, and birth place in your profile to use My Josiyam.',
+                              ),
+                            ),
+                          );
+                          Navigator.pushNamed(context, AppConstants.profileRoute);
+                          return;
+                        }
+                        Navigator.pushNamed(
+                          context,
+                          AppConstants.singleJosiyamRoute,
+                        );
+                        return;
+                      }
+                      if (module == 'Couple Josiyam') {
+                        if (auth is! AuthAuthenticated) {
+                          Navigator.pushNamed(context, AppConstants.loginRoute);
+                          return;
+                        }
+                        Navigator.pushNamed(
+                          context,
+                          AppConstants.coupleJosiyamRoute,
+                        );
+                        return;
+                      }
                     },
                   );
                 },

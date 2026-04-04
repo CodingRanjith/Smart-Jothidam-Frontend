@@ -23,6 +23,9 @@ class _ProfilePageState extends State<ProfilePage> {
   DateTime? _selectedDob;
   TimeOfDay? _selectedBirthTime;
 
+  /// True after "Update Profile" is dispatched; used to show success snackbar without emitting [AuthSuccess] (which would replace [AuthAuthenticated] and leave the page stuck on the loading indicator).
+  bool _pendingUpdateSuccessSnack = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
         birthTimeString = '${_selectedBirthTime!.hour.toString().padLeft(2, '0')}:${_selectedBirthTime!.minute.toString().padLeft(2, '0')}';
       }
 
+      setState(() => _pendingUpdateSuccessSnack = true);
       context.read<AuthBloc>().add(
             AuthUpdateProfileRequested(
               name: _nameController.text.trim(),
@@ -72,11 +76,19 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthSuccess) {
+          if (state is AuthAuthenticated && _pendingUpdateSuccessSnack) {
+            _pendingUpdateSuccessSnack = false;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Profile updated successfully')),
+            );
+          } else if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
           } else if (state is AuthError) {
+            if (_pendingUpdateSuccessSnack) {
+              _pendingUpdateSuccessSnack = false;
+            }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
@@ -85,6 +97,29 @@ class _ProfilePageState extends State<ProfilePage> {
           }
         },
         builder: (context, state) {
+          if (state is AuthError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(AuthGetProfileRequested());
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
           if (state is AuthAuthenticated) {
             final user = state.user;
             _nameController.text = user.name;

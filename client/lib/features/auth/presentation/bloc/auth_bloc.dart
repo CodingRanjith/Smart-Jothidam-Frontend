@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/register_user.dart';
 import '../../domain/usecases/login_user.dart';
 import '../../domain/usecases/forgot_password.dart';
@@ -9,6 +10,7 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final AuthRepository _authRepository;
   final RegisterUser _registerUser;
   final LoginUser _loginUser;
   final ForgotPassword _forgotPassword;
@@ -17,13 +19,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LogoutUser _logoutUser;
 
   AuthBloc({
+    required AuthRepository authRepository,
     required RegisterUser registerUser,
     required LoginUser loginUser,
     required ForgotPassword forgotPassword,
     required GetProfile getProfile,
     required UpdateProfile updateProfile,
     required LogoutUser logoutUser,
-  })  : _registerUser = registerUser,
+  })  : _authRepository = authRepository,
+        _registerUser = registerUser,
         _loginUser = loginUser,
         _forgotPassword = forgotPassword,
         _getProfile = getProfile,
@@ -46,7 +50,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await _getProfile();
-      emit(AuthAuthenticated(user: user));
+      emit(AuthAuthenticated(user: user, token: _authRepository.getToken()));
     } catch (e) {
       emit(AuthUnauthenticated());
     }
@@ -66,7 +70,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         birthTime: event.birthTime,
         birthPlace: event.birthPlace,
       );
-      emit(AuthAuthenticated(user: user));
+      emit(AuthAuthenticated(user: user, token: _authRepository.getToken()));
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -79,7 +83,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await _loginUser(event.phone, event.password);
-      emit(AuthAuthenticated(user: user));
+      emit(AuthAuthenticated(user: user, token: _authRepository.getToken()));
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -118,7 +122,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await _getProfile();
-      emit(AuthAuthenticated(user: user));
+      emit(AuthAuthenticated(user: user, token: _authRepository.getToken()));
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -137,8 +141,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         birthPlace: event.birthPlace,
         phone: event.phone,
       );
-      emit(AuthAuthenticated(user: user));
-      emit(AuthSuccess(message: 'Profile updated successfully'));
+      emit(AuthAuthenticated(user: user, token: _authRepository.getToken()));
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }

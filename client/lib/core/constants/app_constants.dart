@@ -20,4 +20,8 @@ class AppConstants {
   static const String forgotPasswordRoute = '/forgot-password';
   static const String homeRoute = '/home';
   static const String profileRoute = '/profile';
+
+  // Module 2 / 3 (Josiyam)
+  static const String singleJosiyamRoute = '/single-josiyam';
+  static const String coupleJosiyamRoute = '/couple-josiyam';
 }

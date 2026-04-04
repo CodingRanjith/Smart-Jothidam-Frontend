@@ -113,4 +113,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (token == null || token.isEmpty) return;
     await _remoteDataSource.verifyToken(token);
   }
+
+  @override
+  String? getToken() => _getToken();
 }

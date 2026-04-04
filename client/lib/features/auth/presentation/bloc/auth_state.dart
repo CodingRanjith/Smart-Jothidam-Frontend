@@ -15,10 +15,13 @@ class AuthLoading extends AuthState {}
 class AuthAuthenticated extends AuthState {
   final UserEntity user;
 
-  const AuthAuthenticated({required this.user});
+  /// JWT for protected API calls (same value as stored after login).
+  final String? token;
+
+  const AuthAuthenticated({required this.user, this.token});
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, token];
 }
 
 class AuthUnauthenticated extends AuthState {}

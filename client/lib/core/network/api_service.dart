@@ -24,6 +24,22 @@ class ApiService {
     }
   }
 
+  /// Binary GET (e.g. PDF export).
+  Future<Response> getBytes(
+    String endpoint, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+  }) async {
+    return _dioClient.dio.get(
+      endpoint,
+      queryParameters: queryParameters,
+      options: Options(
+        headers: headers,
+        responseType: ResponseType.bytes,
+      ),
+    );
+  }
+
   // POST request
   Future<Response> post(
     String endpoint, {
