@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../widgets/auth_textfield.dart';
-import '../widgets/auth_button.dart';
 import '../../../../core/utils/validators.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -22,6 +20,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   DateTime? _selectedDob;
   TimeOfDay? _selectedBirthTime;
+  bool _timeUnknown = false;
+  int _currentStep = 0;
+  int? _selectedSex;
+  bool _isInitialDataLoaded = false;
+  static const List<String> _sexOptions = ['Male', 'Female'];
 
   /// True after "Update Profile" is dispatched; used to show success snackbar without emitting [AuthSuccess] (which would replace [AuthAuthenticated] and leave the page stuck on the loading indicator).
   bool _pendingUpdateSuccessSnack = false;
@@ -43,7 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void _onUpdatePressed() {
     if (_formKey.currentState!.validate()) {
       String? birthTimeString;
-      if (_selectedBirthTime != null) {
+      if (_selectedBirthTime != null && !_timeUnknown) {
         birthTimeString = '${_selectedBirthTime!.hour.toString().padLeft(2, '0')}:${_selectedBirthTime!.minute.toString().padLeft(2, '0')}';
       }
 
@@ -58,6 +61,310 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           );
     }
+  }
+
+  String _formatDob(DateTime? value) {
+    if (value == null) {
+      return '';
+    }
+    const months = <String>[
+      'Jan.',
+      'Feb.',
+      'Mar.',
+      'Apr.',
+      'May',
+      'Jun.',
+      'Jul.',
+      'Aug.',
+      'Sep.',
+      'Oct.',
+      'Nov.',
+      'Dec.',
+    ];
+    final month = months[value.month - 1];
+    final day = value.day.toString().padLeft(2, '0');
+    return '$month $day, ${value.year}.';
+  }
+
+  Future<void> _pickDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _selectedDob ?? DateTime.now().subtract(const Duration(days: 365 * 20)),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (date != null) {
+      setState(() => _selectedDob = date);
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: _selectedBirthTime ?? const TimeOfDay(hour: 0, minute: 0),
+    );
+    if (time != null) {
+      setState(() {
+        _selectedBirthTime = time;
+        _timeUnknown = false;
+      });
+    }
+  }
+
+  InputDecoration _lineInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      border: InputBorder.none,
+      contentPadding: EdgeInsets.zero,
+      isDense: true,
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _progressHeader() {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.close, color: Colors.black87),
+        ),
+        Expanded(
+          child: Row(
+            children: List.generate(
+              3,
+              (index) => Expanded(
+                child: Container(
+                  height: 4,
+                  margin: EdgeInsets.only(right: index == 2 ? 0 : 8),
+                  decoration: BoxDecoration(
+                    color: index <= _currentStep ? Colors.black87 : Colors.black12,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          '${_currentStep + 1} / 3',
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _stepOne() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle('When\'s your birthday?'),
+        const SizedBox(height: 14),
+        InkWell(
+          onTap: _pickDate,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              _selectedDob == null ? 'Select your date of birth' : _formatDob(_selectedDob),
+              style: TextStyle(
+                fontSize: 24,
+                color: _selectedDob == null ? Colors.black45 : Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        const Divider(height: 24, thickness: 1),
+        const SizedBox(height: 24),
+        _sectionTitle('What time were you born?'),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                onTap: _timeUnknown ? null : _pickTime,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    _timeUnknown
+                        ? '--:--'
+                        : (_selectedBirthTime == null ? '12:00 AM' : _selectedBirthTime!.format(context)),
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: _timeUnknown ? Colors.black38 : Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  value: _timeUnknown,
+                  side: const BorderSide(color: Colors.black26),
+                  onChanged: (value) {
+                    setState(() {
+                      _timeUnknown = value ?? false;
+                      if (_timeUnknown) {
+                        _selectedBirthTime = null;
+                      }
+                    });
+                  },
+                ),
+                const Text('I don\'t know'),
+              ],
+            ),
+          ],
+        ),
+        const Divider(height: 24, thickness: 1),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () {},
+          child: const Text(
+            'Why is this necessary',
+            style: TextStyle(color: Colors.black45),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _stepTwo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle('What should we call you?'),
+        const SizedBox(height: 14),
+        TextFormField(
+          controller: _nameController,
+          validator: Validators.validateName,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+          decoration: _lineInputDecoration('max 20 characters'),
+        ),
+        const Divider(height: 24, thickness: 1),
+        const SizedBox(height: 24),
+        _sectionTitle('What\'s your sex?'),
+        const SizedBox(height: 16),
+        Row(
+          children: List.generate(_sexOptions.length, (index) {
+            final selected = _selectedSex == index;
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: index == _sexOptions.length - 1 ? 0 : 10),
+                child: OutlinedButton(
+                  onPressed: () => setState(() => _selectedSex = index),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: selected ? Colors.black87 : Colors.black26),
+                    minimumSize: const Size.fromHeight(56),
+                  ),
+                  child: Text(
+                    _sexOptions[index],
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () {},
+          child: const Text(
+            'Why is this necessary',
+            style: TextStyle(color: Colors.black45),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _stepThree() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle('A few more details'),
+        const SizedBox(height: 22),
+        const Text(
+          'Phone',
+          style: TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _phoneController,
+          keyboardType: TextInputType.phone,
+          validator: Validators.validatePhone,
+          decoration: _lineInputDecoration('Enter phone number'),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+        ),
+        const Divider(height: 24, thickness: 1),
+        const SizedBox(height: 16),
+        const Text(
+          'Birth Place',
+          style: TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _birthPlaceController,
+          decoration: _lineInputDecoration('Where were you born?'),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+        ),
+        const Divider(height: 24, thickness: 1),
+      ],
+    );
+  }
+
+  Widget _stepContent() {
+    switch (_currentStep) {
+      case 0:
+        return _stepOne();
+      case 1:
+        return _stepTwo();
+      default:
+        return _stepThree();
+    }
+  }
+
+  bool _validateCurrentStep() {
+    if (_currentStep == 0) {
+      return _selectedDob != null;
+    }
+    if (_currentStep == 1) {
+      final validName = Validators.validateName(_nameController.text.trim()) == null;
+      return validName && _selectedSex != null;
+    }
+    return _formKey.currentState?.validate() ?? false;
+  }
+
+  void _handleNext() {
+    if (!_validateCurrentStep()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please complete required fields before continuing.')),
+      );
+      return;
+    }
+
+    if (_currentStep < 2) {
+      setState(() => _currentStep += 1);
+      return;
+    }
+    _onUpdatePressed();
   }
 
   @override
@@ -122,91 +429,75 @@ class _ProfilePageState extends State<ProfilePage> {
           }
           if (state is AuthAuthenticated) {
             final user = state.user;
-            _nameController.text = user.name;
-            _phoneController.text = user.phone ?? '';
-            _birthPlaceController.text = user.birthPlace ?? '';
-            _selectedDob = user.dob;
-            
-            if (user.birthTime != null) {
-              final parts = user.birthTime!.split(':');
-              if (parts.length == 2) {
-                _selectedBirthTime = TimeOfDay(
-                  hour: int.parse(parts[0]),
-                  minute: int.parse(parts[1]),
-                );
+            if (!_isInitialDataLoaded) {
+              _nameController.text = user.name;
+              _phoneController.text = user.phone ?? '';
+              _birthPlaceController.text = user.birthPlace ?? '';
+              _selectedDob = user.dob;
+
+              if (user.birthTime != null) {
+                final parts = user.birthTime!.split(':');
+                if (parts.length == 2) {
+                  _selectedBirthTime = TimeOfDay(
+                    hour: int.parse(parts[0]),
+                    minute: int.parse(parts[1]),
+                  );
+                }
               }
+              _isInitialDataLoaded = true;
             }
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+            return SafeArea(
               child: Form(
                 key: _formKey,
-                child: Column(
-                  children: [
-                    const CircleAvatar(
-                      radius: 50,
-                      child: Icon(Icons.person, size: 50),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      user.phone ?? user.email ?? 'Mobile verified user',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 30),
-                    AuthTextField(
-                      controller: _nameController,
-                      label: 'Name',
-                      validator: Validators.validateName,
-                    ),
-                    const SizedBox(height: 16),
-                    AuthTextField(
-                      controller: _phoneController,
-                      label: 'Phone',
-                      keyboardType: TextInputType.phone,
-                      validator: Validators.validatePhone,
-                    ),
-                    const SizedBox(height: 16),
-                    ListTile(
-                      title: Text(_selectedDob == null ? 'Date of Birth' : 'DOB: ${_selectedDob!.toString().split(' ')[0]}'),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDob ?? DateTime.now().subtract(const Duration(days: 365 * 20)),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        );
-                        if (date != null) {
-                          setState(() => _selectedDob = date);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    ListTile(
-                      title: Text(_selectedBirthTime == null ? 'Birth Time' : 'Time: ${_selectedBirthTime!.format(context)}'),
-                      trailing: const Icon(Icons.access_time),
-                      onTap: () async {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: _selectedBirthTime ?? TimeOfDay.now(),
-                        );
-                        if (time != null) {
-                          setState(() => _selectedBirthTime = time);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    AuthTextField(
-                      controller: _birthPlaceController,
-                      label: 'Birth Place',
-                    ),
-                    const SizedBox(height: 24),
-                    AuthButton(
-                      text: 'Update Profile',
-                      onPressed: _onUpdatePressed,
-                      isLoading: state is AuthLoading,
-                    ),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
+                  child: Column(
+                    children: [
+                      _progressHeader(),
+                      const SizedBox(height: 28),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: _stepContent(),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          if (_currentStep > 0)
+                            TextButton(
+                              onPressed: () => setState(() => _currentStep -= 1),
+                              child: const Text(
+                                'Back',
+                                style: TextStyle(color: Colors.black87, fontSize: 16),
+                              ),
+                            )
+                          else
+                            const SizedBox(width: 70),
+                          const Spacer(),
+                          ElevatedButton(
+                            onPressed: state is AuthLoading ? null : _handleNext,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF48CA8),
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(150, 52),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              _currentStep == 2 ? 'Confirm' : 'Next',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

@@ -5,6 +5,8 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_textfield.dart';
 import '../widgets/auth_button.dart';
+import '../../data/models/country_code.dart';
+import '../widgets/country_code_picker.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/constants/app_constants.dart';
 
@@ -21,6 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
+  CountryCode _selectedCountry = CountryCode.getAllCountries().first;
 
   DateTime? _selectedDob;
   TimeOfDay? _selectedBirthTime;
@@ -42,11 +45,12 @@ class _RegisterPageState extends State<RegisterPage> {
       if (_selectedBirthTime != null) {
         birthTimeString = '${_selectedBirthTime!.hour.toString().padLeft(2, '0')}:${_selectedBirthTime!.minute.toString().padLeft(2, '0')}';
       }
+      final fullPhone = '${_selectedCountry.dialCode}${_phoneController.text.trim()}';
 
       context.read<AuthBloc>().add(
             AuthRegisterRequested(
               name: _nameController.text.trim(),
-              phone: _phoneController.text.trim(),
+              phone: fullPhone,
               password: _passwordController.text,
               dob: _selectedDob,
               birthTime: birthTimeString,
@@ -201,11 +205,32 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               const SizedBox(height: 14),
                               _sectionLabel('Phone'),
-                              TextFormField(
-                                controller: _phoneController,
-                                validator: Validators.validateRequiredPhone,
-                                keyboardType: TextInputType.phone,
-                                decoration: _inputDecoration(hint: '+91 98765 43210'),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CountryCodePicker(
+                                    borderRadius: 28,
+                                    height: 54,
+                                    width: 112,
+                                    backgroundColor: const Color(0xFFF3F1F6),
+                                    borderColor: const Color(0xFFE0D8E4),
+                                    selectedCountry: _selectedCountry,
+                                    onChanged: (country) {
+                                      setState(() {
+                                        _selectedCountry = country;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _phoneController,
+                                      validator: Validators.validateRequiredPhone,
+                                      keyboardType: TextInputType.phone,
+                                      decoration: _inputDecoration(hint: '98765 43210'),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 14),
                               _sectionLabel('Birth of date'),

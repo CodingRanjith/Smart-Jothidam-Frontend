@@ -49,6 +49,7 @@ dependencies:
   intl: ^0.19.0
   share_plus: ^10.1.4
   path_provider: ^2.1.5
+  lottie: ^3.3.2
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo.png
+    - assets/loading.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

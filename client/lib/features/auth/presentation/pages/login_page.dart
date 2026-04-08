@@ -5,6 +5,8 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../data/models/country_code.dart';
+import '../widgets/country_code_picker.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,14 +16,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const double _phoneRowRadius = 12;
+  static const double _phoneRowHeight = 52;
+  static const Color _phoneFill = Color(0xFFF5F3F7);
+  static const Color _phoneBorder = Color(0xFFE0D8E4);
+  static const Color _phoneFocusBorder = Color(0xFFB41C63);
+
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _phoneFocusNode = FocusNode();
+  CountryCode _selectedCountry = CountryCode.getAllCountries().first;
   bool _obscurePassword = true;
   bool _rememberMe = false;
 
   @override
   void dispose() {
+    _phoneFocusNode.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -29,9 +40,10 @@ class _LoginPageState extends State<LoginPage> {
 
   void _onLoginPressed() {
     if (_formKey.currentState!.validate()) {
+      final fullPhone = '${_selectedCountry.dialCode}${_phoneController.text.trim()}';
       context.read<AuthBloc>().add(
             AuthLoginRequested(
-              phone: _phoneController.text.trim(),
+              phone: fullPhone,
               password: _passwordController.text,
             ),
           );
@@ -88,6 +100,10 @@ class _LoginPageState extends State<LoginPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFF2A0622), Color(0xFF6A0F38)],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(36),
+          bottomRight: Radius.circular(36),
         ),
       ),
       child: Stack(
@@ -162,12 +178,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             _fieldLabel('Phone Number'),
             const SizedBox(height: 8),
-            _buildInputField(
-              controller: _phoneController,
-              hintText: '+8801775472701',
-              keyboardType: TextInputType.phone,
-              validator: Validators.validateRequiredPhone,
-            ),
+            _buildPhoneRow(),
             const SizedBox(height: 16),
             _fieldLabel('Password'),
             const SizedBox(height: 8),
@@ -339,6 +350,72 @@ class _LoginPageState extends State<LoginPage> {
         fontSize: 19,
         fontWeight: FontWeight.w600,
       ),
+    );
+  }
+
+  Widget _buildPhoneRow() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CountryCodePicker(
+          borderRadius: _phoneRowRadius,
+          height: _phoneRowHeight,
+          width: 110,
+          backgroundColor: _phoneFill,
+          borderColor: _phoneBorder,
+          selectedCountry: _selectedCountry,
+          onChanged: (country) {
+            setState(() {
+              _selectedCountry = country;
+            });
+          },
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextFormField(
+            controller: _phoneController,
+            focusNode: _phoneFocusNode,
+            keyboardType: TextInputType.phone,
+            validator: Validators.validateRequiredPhone,
+            textAlignVertical: TextAlignVertical.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF2F2A34),
+            ),
+            decoration: InputDecoration(
+              hintText: '9876543210',
+              hintStyle: const TextStyle(color: Color(0xFF8A8591), fontSize: 16),
+              filled: true,
+              fillColor: _phoneFill,
+              constraints: const BoxConstraints(minHeight: _phoneRowHeight),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(_phoneRowRadius),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(_phoneRowRadius),
+                borderSide: const BorderSide(color: _phoneBorder, width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(_phoneRowRadius),
+                borderSide: const BorderSide(color: _phoneFocusBorder, width: 2),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(_phoneRowRadius),
+                borderSide: BorderSide(color: Colors.red.shade400),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(_phoneRowRadius),
+                borderSide: BorderSide(color: Colors.red.shade700, width: 2),
+              ),
+              errorStyle: const TextStyle(height: 0.8),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
