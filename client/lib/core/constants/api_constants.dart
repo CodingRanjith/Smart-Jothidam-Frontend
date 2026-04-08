@@ -6,8 +6,8 @@ class ApiConstants {
   //   }
   //   return 'https://smart-jothidam-backend.onrender.com';
   // }
-  // static const String baseUrl = 'https://smart-jothidam-backend.onrender.com';
-    static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://smart-jothidam-backend.onrender.com';
+    // static const String baseUrl = 'http://localhost:3000';
 
 
   // Legacy paths (no `/api` prefix). Production Render currently exposes these;

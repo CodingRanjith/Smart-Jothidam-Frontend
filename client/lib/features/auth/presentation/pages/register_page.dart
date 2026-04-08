@@ -56,11 +56,66 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  String _formatDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year.toString();
+    return '$day/$month/$year';
+  }
+
+  InputDecoration _inputDecoration({
+    required String hint,
+    Widget? suffixIcon,
+    Widget? prefixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: Color(0xFF8C8993),
+        fontSize: 14,
+      ),
+      filled: true,
+      fillColor: const Color(0xFFF3F1F6),
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(28),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(28),
+        borderSide: const BorderSide(color: Color(0xFF8E164F), width: 1.2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(28),
+        borderSide: const BorderSide(color: Colors.redAccent),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(28),
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF1E1B24),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: const Color(0xFFEAE8EE),
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
@@ -81,190 +136,206 @@ class _RegisterPageState extends State<RegisterPage> {
           },
           builder: (context, state) {
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 16),
-                    Center(
-                      child: Icon(
-                        Icons.person_add_rounded,
-                        size: 72,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Create Account',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign up to get personalised astrology insights and guidance.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 28),
-                    AuthTextField(
-                      controller: _nameController,
-                      label: 'Name *',
-                      validator: Validators.validateName,
-                    ),
-                    const SizedBox(height: 16),
-                    AuthTextField(
-                      controller: _phoneController,
-                      label: 'Phone * (with country code)',
-                      keyboardType: TextInputType.phone,
-                      validator: Validators.validateRequiredPhone,
-                    ),
-                    const SizedBox(height: 16),
-                    AuthTextField(
-                      controller: _passwordController,
-                      label: 'Password *',
-                      obscureText: true,
-                      validator: Validators.validatePassword,
-                    ),
-                    const SizedBox(height: 16),
-                    AuthTextField(
-                      controller: _confirmPasswordController,
-                      label: 'Confirm Password *',
-                      obscureText: true,
-                      validator: (value) => Validators.validateConfirmPassword(value, _passwordController.text),
-                    ),
-                    const SizedBox(height: 20),
-                    const Divider(height: 1),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Optional Information',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.8),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const SizedBox(height: 0),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        _selectedDob == null ? 'Date of Birth' : 'DOB: ${_selectedDob!.toString().split(' ')[0]}',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      trailing: Icon(Icons.calendar_today, size: 20, color: theme.colorScheme.primary),
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now().subtract(const Duration(days: 365 * 20)),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        );
-                        if (date != null) {
-                          setState(() => _selectedDob = date);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        _selectedBirthTime == null ? 'Birth Time' : 'Time: ${_selectedBirthTime!.format(context)}',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      trailing: Icon(Icons.access_time, size: 20, color: theme.colorScheme.primary),
-                      onTap: () async {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (time != null) {
-                          setState(() => _selectedBirthTime = time);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    AuthTextField(
-                      controller: _birthPlaceController,
-                      label: 'Birth Place',
-                    ),
-                    const SizedBox(height: 28),
-                    AuthButton(
-                      text: 'Sign Up',
-                      onPressed: _onRegisterPressed,
-                      isLoading: state is AuthLoading,
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'or',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
-                          ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 74),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF3B0521),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.apple, size: 22),
-                            label: const Text('Apple'),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              foregroundColor: theme.colorScheme.onSurface,
-                              side: BorderSide(color: theme.colorScheme.outline),
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Get Started Now',
+                            style: TextStyle(
+                              fontSize: 31,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.g_mobiledata, size: 22),
-                            label: const Text('Google'),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              foregroundColor: theme.colorScheme.onSurface,
-                              side: BorderSide(color: theme.colorScheme.outline),
+                          SizedBox(height: 8),
+                          Text(
+                            'Create an account or log in to explore\nabout our app',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFFE7DBE2),
+                              height: 1.35,
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 28),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Already have an account? ',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.8),
+                    Transform.translate(
+                      offset: const Offset(0, -44),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(18, 20, 18, 24),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEDEAF2),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x22000000),
+                                blurRadius: 18,
+                                offset: Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _sectionLabel('Name'),
+                              TextFormField(
+                                controller: _nameController,
+                                validator: Validators.validateName,
+                                decoration: _inputDecoration(hint: 'Koushik Sarkar'),
+                              ),
+                              const SizedBox(height: 14),
+                              _sectionLabel('Phone'),
+                              TextFormField(
+                                controller: _phoneController,
+                                validator: Validators.validateRequiredPhone,
+                                keyboardType: TextInputType.phone,
+                                decoration: _inputDecoration(hint: '+91 98765 43210'),
+                              ),
+                              const SizedBox(height: 14),
+                              _sectionLabel('Birth of date'),
+                              InkWell(
+                                onTap: () async {
+                                  final date = await showDatePicker(
+                                    context: context,
+                                    initialDate: _selectedDob ?? DateTime.now().subtract(const Duration(days: 365 * 20)),
+                                    firstDate: DateTime(1900),
+                                    lastDate: DateTime.now(),
+                                  );
+                                  if (date != null) {
+                                    setState(() => _selectedDob = date);
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(28),
+                                child: IgnorePointer(
+                                  child: TextFormField(
+                                    controller: TextEditingController(
+                                      text: _selectedDob == null ? '' : _formatDate(_selectedDob!),
+                                    ),
+                                    decoration: _inputDecoration(
+                                      hint: '15/06/2000',
+                                      suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _sectionLabel('Set Password'),
+                              TextFormField(
+                                controller: _passwordController,
+                                validator: Validators.validatePassword,
+                                obscureText: true,
+                                decoration: _inputDecoration(
+                                  hint: '******',
+                                  suffixIcon: const Icon(Icons.visibility_off_outlined, size: 18),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _sectionLabel('Confirm Password'),
+                              TextFormField(
+                                controller: _confirmPasswordController,
+                                validator: (value) => Validators.validateConfirmPassword(value, _passwordController.text),
+                                obscureText: true,
+                                decoration: _inputDecoration(
+                                  hint: '******',
+                                  suffixIcon: const Icon(Icons.visibility_off_outlined, size: 18),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _sectionLabel('Birth Time (optional)'),
+                              InkWell(
+                                onTap: () async {
+                                  final time = await showTimePicker(
+                                    context: context,
+                                    initialTime: _selectedBirthTime ?? TimeOfDay.now(),
+                                  );
+                                  if (time != null) {
+                                    setState(() => _selectedBirthTime = time);
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(28),
+                                child: IgnorePointer(
+                                  child: TextFormField(
+                                    controller: TextEditingController(
+                                      text: _selectedBirthTime == null ? '' : _selectedBirthTime!.format(context),
+                                    ),
+                                    decoration: _inputDecoration(
+                                      hint: '10:30 AM',
+                                      suffixIcon: const Icon(Icons.access_time_outlined, size: 18),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _sectionLabel('Birth Place (optional)'),
+                              TextFormField(
+                                controller: _birthPlaceController,
+                                decoration: _inputDecoration(hint: 'Kolkata'),
+                              ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                height: 54,
+                                child: ElevatedButton(
+                                  onPressed: state is AuthLoading ? null : _onRegisterPressed,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF9E1B5B),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(28),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: state is AuthLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                        )
+                                      : const Text(
+                                          'Sign Up',
+                                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Already have an account? ',
+                                    style: TextStyle(color: Color(0xFF4F4A5A)),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+                                    },
+                                    child: const Text(
+                                      'Log in',
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
-                          },
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: const Text('Log in'),
-                        ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
                   ],
                 ),
               ),
